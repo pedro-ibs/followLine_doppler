@@ -199,8 +199,8 @@ void app_vCleanValues( void ){
  * 
  * 2 ) Termino do processo do calculo de media.
  * 
- * 3 ) Trazforma os valores lidos pelos sendores em posicionamento
- * que variam de 0 a 7000 e gradações como mostrado abaixo:
+ * 3 ) Trazforma os valores lidos pelos sensores em posicionamento
+ * onde variam de 0 a 7000 e gradações como mostrado abaixo:
  * 
  * 
  * S0	S1	S2	S3	S4	S5	S6	S7
@@ -260,7 +260,7 @@ void app_vSignalTreatment( void ){
 void app_vProcess( void ){
 	if(sbStop == TRUE){
 		/**
-		 * O overjut do controle pode fazer com que o robô
+		 * O overchute do controle pode fazer com que o robô
 		 * trave em cima de um crusamento portanto deve 
 		 * ser verificado se a faixa está por baixo dos 
 		 * sensores para mitigar esse bug
