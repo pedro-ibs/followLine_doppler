@@ -21,6 +21,8 @@
 #include "FreeRTOS/utility/swap.h"
 #include "FreeRTOS/utility/textProtocol.h"
 #include "FreeRTOS/utility/EventGroup.h"
+#include "FreeRTOS/utility/pid.h"
+
 
 /* includes do FreeRTOS */
 #include "FreeRTOS/include/FreeRTOSConfig.h"

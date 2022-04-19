@@ -29,7 +29,7 @@
  * Essa biblioteca foi desenvolvida para trabalhar com protocolos de
  * texto geralmente utilizados em comunicações serias como RS232
  * 
- * Com ela é possível traduzir e trabalhar com diverssos tipos de 
+ * Com ela é possível traduzir e trabalhar com diversos tipos de 
  * protocolos e textos padronizados como CSV
  *
  */

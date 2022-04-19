@@ -25,8 +25,14 @@
  * -------------------------------------------------------------------
  * #######################################################################
  *
- * Biblioteca para controle de motores por meio de ponte H + PWM
- *
+ * Biblioteca generica para controle de motores por meio de uma PONTE H
+ * 
+ * 	   	   ______
+ * 	PWM_CH1 --|	|-- M1A1
+ * 	PWM_CH2 --|	|-- M1A2
+ *		  |	|
+ *	PWM_CH3 --|	|-- M2A1
+ *	PWM_CH4 --|_____|-- M2A2
  */
 
 
@@ -50,6 +56,14 @@ void motor_vToBack(u16 uPwm, Motor *pxMotor){
 	pwm_vSetChannel(uPwm, pxMotor->xP2);
 }
 
+/**
+ * @brief Diferente de "motor_vTurnoff" ao 
+ * envés de desligar o motor essa função
+ * irá travar os motores (dependendo do
+ * Chip/Driver Utilizado ). Portanto o 
+ * Valor do PWM define a intenssidade da
+ * trava. 
+ */
 void motor_vToStop(u16 uPwm, Motor *pxMotor){
 	pwm_vSetChannel(uPwm, pxMotor->xP1);
 	pwm_vSetChannel(uPwm, pxMotor->xP2);

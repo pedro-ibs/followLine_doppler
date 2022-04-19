@@ -26,14 +26,36 @@
  * #######################################################################
  * 
  * Biblioteca básica para controle PID adapitada para o FreeRTOS
+ * 
+ * 1 ) Defina os valores de Kp, Ki e Kd de acordo com o processo a ser 
+ * controlado.
+ * 
+ * 2 ) Defina o valor so SetPoint
+ * 
+ * 3 ) Salve o valor da entrada
+ * 
+ * 4 ) calculo
+ * 
+ * 5 ) saía
+ * 
+ * Pid xPid = { 0 }
+ * 
+ * 	sxPid.fKp 	= 0.1;
+ * 	sxPid.fKi 	= 0.2;
+ * 	sxPid.fKd 	= 0.03;
  *
+ * 	while(TRUE) {
+ *	  	sxPid.fSetPoint = 500;
+ *		sxPid.fInput = VALOR_DA_AQUISIÇÃO
+ *  		pid_fRun(&sxPid);
+ * 
+ *		sxPid.fOutput 	// SAÍDA  
+ * 	}
  */
 
 /* Includes ---------------------------------------------------------------------------------------------------------------------------------------------*/
-#include <core.h>
-#include <FreeRTOS/includes.h>
-
-
+#include "FreeRTOS/include/FreeRTOSConfig.h"
+#include "FreeRTOS/include/FreeRTOS.h"
 
 #ifndef pid_H_
 #define pid_H_

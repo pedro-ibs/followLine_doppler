@@ -24,11 +24,26 @@
  *   GNU General Public License for more details.
  * -------------------------------------------------------------------
  * #######################################################################
- *
- *
- * TODO: documentation or resume or Abstract
+ * 
+ * Gera sinais PWM, Cada Timer tem acesso a um grupo de pinos por exemplo
+ * com o TIM1 será possível gerar PWM nos pinos
+ * 	PA8  T1C1	PWM_CH1
+ * 	PA9  T1C2	PWM_CH2
+ * 	PA10 T1C3	PWM_CH3
+ * 	PA11 T1C4	PWM_CH4
+ * 
+ * 1) utilise pwm_vSetGpio() para configurar os pinos GPIOs que serão 
+ * utilisados;
+ * 
+ * 2 ) com pwm_vSetup(); é configurado qual timer será utilizado e 
+ * frequência de trabalho com "pwm_vSetup(TIN1, 72-1, 1000-1)" o TIM! irá
+ * gerar um PWM de 1kHz.
+ * 
+ * 3 ) Para controlar o pulso PWM use "pwm_vSetChannel()", o valor do pulso
+ * deve estar coerente com o periodo configurado no timer.
  *
  */
+
 
 /* Includes ---------------------------------------------------------------------------------------------------------------------------------------------*/
 #include <core.h>

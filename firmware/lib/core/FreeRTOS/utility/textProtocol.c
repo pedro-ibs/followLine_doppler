@@ -32,7 +32,7 @@
  * Essa biblioteca foi desenvolvida para trabalhar com protocolos de
  * texto geralmente utilizados em comunicações serias como RS232
  * 
- * Com ela é possível traduzir e trabalhar com diverssos tipos de 
+ * Com ela é possível traduzir e trabalhar com diversos tipos de 
  * protocolos e textos padronizados como CSV
  *
  */
@@ -78,7 +78,7 @@ _bool textp_bIsToken(CCHR pcTok){
 }
 
 /**
- * @brief testa se a strind é compsta apenas pro
+ * @brief testa se a strind é composta apenas pro
  * numeros hexadecimais
  * @param pcStr string a ser testada;
  * @return TRUE: se a string é composta apensa por 
@@ -99,7 +99,7 @@ _bool textp_bIsHexNum(CCHR *pcStr){						// navegar pela memoria
 
 
 /**
- * @brief testa se a strind é compsta apenas pro
+ * @brief testa se a strind é composta apenas pro
  * numeros decimais
  * @param pcStr string a ser testada;
  * @return TRUE: se a string é composta apensa por 
@@ -238,7 +238,7 @@ _bool textp_bGetValueInCSV(CCHR *pcLine, const size_t cuWhere, char *pcSaveTo){
 
 
 /**
- * @brief lé infomação de uma string dividida por alum caractere, como:
+ * @brief lé informação de uma string dividida por alum caractere, como:
  * aaa/bbb/ccc/ddd/
  * @param pcLine linha do arquivo
  * @param cuWhere posição da coluna
@@ -281,7 +281,7 @@ _bool textp_bGetValueInStr(CCHR *pcStr, const size_t cuWhere, CCHR div, char *pc
 
 /**
  * @brief escreve 0x00U em um bloco de memoria (variável)
- * @note é possível limpar outros tipos de dados alem de
+ * @note é possível limpar outros tipos de dados além de
  * um vetor do tipo uint8_t, basta fazer a comversão de tipo
  * de ponteiro para (u8*)
  * @param puBlk vetor da variável ha ser lipado
@@ -313,7 +313,7 @@ char *textp_pcCleanStr(char *pcStr){
  * @return char*: string com os zeros a esquerda inseridos
  * o tamanho real da string for 3 e o tamanho desejador for 5
  * a função completará com 0 (zero) os espaço restamante:
- * textp_pcZeroLeft( "str", 5 ) tem saida de 00str
+ * textp_pcZeroLeft( "str", 5 ) tem Saida de 00str
  * 
  */
 char *textp_pcZeroLeft(char *pcStr, const size_t cuSizeWithZeros){
@@ -431,7 +431,7 @@ _bool textp_bCheckStringSize(CCHR *pcString, const size_t uMaxSize){
  * 
  * @param uMaxSize: tamanho maximo de pcString
  * 
- * @param pcIgnoreValue: caso a string tenha esse a função retrona FALSE
+ * @param pcIgnoreValue: caso a string tenha esse a função retorna FALSE
  */
 _bool textp_bCheckStringValid(CCHR *pcString, const size_t uMaxSize, CCHR *pcIgnoreValue){
 	if(textp_bCheckStringSize(pcString, uMaxSize) == FALSE){

@@ -48,7 +48,6 @@
 #include <FreeRTOS/includes.h>
 #include <config.h>
 #include <hardware.h>
-#include <pid.h>
 #include <motor.h>
 /* Local macro ------------------------------------------------------------------------------------------------------------------------------------------*/
 /* Local variables --------------------------------------------------------------------------------------------------------------------------------------*/
@@ -120,9 +119,9 @@ void main_vApp(void * pvParameters){
 	gpio_vInitAll(  );
 	gpio_vDisableDebug ( );
 
-	gpio_vMode(LED,		GPIO_MODE_OUTPUT_OD, GPIO_PULLDOWN);
-	gpio_vMode(LINE_STOP,	GPIO_MODE_INPUT, GPIO_PULLDOWN);
-	gpio_vMode(LINE_CURVE,	GPIO_MODE_INPUT, GPIO_PULLDOWN);
+	gpio_vMode( LED,	GPIO_MODE_OUTPUT_OD,	GPIO_PULLDOWN );
+	gpio_vMode( LINE_STOP,	GPIO_MODE_INPUT,	GPIO_PULLDOWN );
+	gpio_vMode( LINE_CURVE,	GPIO_MODE_INPUT,	GPIO_PULLDOWN );
 
 	pwm_vSetGpio( MOTOR_M1A1 );
 	pwm_vSetGpio( MOTOR_M1A2 );
@@ -130,9 +129,9 @@ void main_vApp(void * pvParameters){
 	pwm_vSetGpio( MOTOR_M2A2 );
 
 	
-	pwm_vSetup(TIM1, PWM_PRESCALER, PWM_PERIOD);
-	motor_vToStop(PWM_MAX, &sxMa.xMotor);
-	motor_vToStop(PWM_MAX, &sxMb.xMotor);
+	pwm_vSetup( TIM1, PWM_PRESCALER, PWM_PERIOD );
+	motor_vToStop( PWM_MAX, &sxMa.xMotor );
+	motor_vToStop( PWM_MAX, &sxMb.xMotor );
 
 	adc1_vInit();
 	adc1_vSetGetSampleMode( CHANNELS );
@@ -192,7 +191,7 @@ void app_vCleanValues( void ){
 }
 
 /**
- * 1 ) após o DMA concluir o preenchimento do buffer, os dado
+ * 1 ) Após o DMA concluir o preenchimento do buffer, os dado
  * são acumulados (somados) para cada canal respectivo.
  * iniciando o processo para calcular do valor médio lido por
  * cada senor.
@@ -236,7 +235,6 @@ void app_vSignalTreatment( void ){
 
 	u8 uContDetection = 0;
 	for (u8 uChannel = 0; uChannel < CHANNELS; uChannel++) {
-
 		if(spuAverage[uChannel] < scpuLineDetected[uChannel]){
 			uContDetection++;
 
