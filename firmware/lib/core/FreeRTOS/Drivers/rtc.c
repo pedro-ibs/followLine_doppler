@@ -131,10 +131,10 @@ void rtc_vUpdate(RTC_DateTypeDef *xDate, RTC_TimeTypeDef *xTime){
 
 
 /**
- * @brief lé a quantidade de segunsdos que uma task está ativa.
+ * @brief lé a quantidade de segundos que uma task está ativa.
  * @note utiliza xTaskGetTickCount, que lê o valor do cotador
  * de ticks de uma task. como o FreeRTOS está configurado para
- * contar um tick acada 1 ms essa função pega a milezima parte
+ * contar um tick acada 1 ms essa função pega a milésima parte
  * disso.
  *.
  * @return segundos, [TickType_t]
