@@ -50,6 +50,7 @@
 #include <hardware.h>
 #include <motor.h>
 /* Local macro ------------------------------------------------------------------------------------------------------------------------------------------*/
+#define LINE_FULL_DETECTED	(spuAverage[0] < scpuLineDetected[0]) && (spuAverage[7] < scpuLineDetected[7])
 /* Local variables --------------------------------------------------------------------------------------------------------------------------------------*/
 typedef struct {
 	Motor xMotor;
@@ -84,8 +85,9 @@ static MotorTask sxMa 				= { { MOTOR_M1A1_PWM, MOTOR_M1A2_PWM }, PWM_MIN };
 static MotorTask sxMb 				= { { MOTOR_M2A1_PWM, MOTOR_M2A2_PWM }, PWM_MIN };
 static Pid sxPid				= { 0 };
 static u16 uPosition				= 0;
-static _bool sbStop				= FALSE;
 static TickType_t sxIgnoreStop			= 0;
+static TickType_t sxToStop			= 0;
+
 /* Local Functions --------------------------------------------------------------------------------------------------------------------------------------*/
 void motor_vTask(void * pvParameters);
 void app_vSignalTreatment(void);
@@ -116,6 +118,13 @@ void main_vApp(void * pvParameters){
 	sxPid.fKi 	= PID_KI;
 	sxPid.fKd 	= PID_KD;
 
+
+	/**
+	 * ignora o stop na patida por 10 segundos já na partida
+	 * isso evita que o robô pare logo no inicio
+	 */
+	sxIgnoreStop	= 10000;
+
 	gpio_vInitAll(  );
 	gpio_vDisableDebug ( );
 
@@ -143,6 +152,7 @@ void main_vApp(void * pvParameters){
 	adc1_vSetChannel( LINE_5, ADC_SAMPLETIME, ADC_REGULAR_RANK_6	);
 	adc1_vSetChannel( LINE_6, ADC_SAMPLETIME, ADC_REGULAR_RANK_7	);
 	adc1_vSetChannel( LINE_7, ADC_SAMPLETIME, ADC_REGULAR_RANK_8	);
+
 
 	/**
 	 * A frequência de aquisição é de 10khz, onde os
@@ -245,10 +255,9 @@ void app_vSignalTreatment( void ){
 
 			/**
 			 * Criar gradação intermediaria
-			 * 
 			 */
 			if(uContDetection > 1){
-				uPosition -= (LINE_VALUE_1 / uContDetection);
+				uPosition -= ( LINE_VALUE_1 / 2 );
 			}
 		};
 	}
@@ -256,21 +265,38 @@ void app_vSignalTreatment( void ){
 
 
 void app_vProcess( void ){
-	if(sbStop == TRUE){
+
+	/**
+	 * após a detecção da linha de chegada o robô irá pararar 
+	 * apos um certo periodo de tempo, fazendo com que o mesmo
+	 * pere após a linha de chegada.  
+	 */
+	if(sxToStop > 0){
 		/**
 		 * O overchute do controle pode fazer com que o robô
-		 * trave em cima de um crusamento portanto deve 
-		 * ser verificado se a faixa está por baixo dos 
-		 * sensores para mitigar esse bug
-		 * 
+		 * trave em cima de um crusamento para evitar isso é 
+		 * verificado se a fixa está embaixo do sensor 
 		 */
-		if( ( uPosition >= LINE_FULL_DETECTED ) == TRUE ){
-			sbStop = FALSE;
-		} else {
-			return; 
+		if( ( LINE_FULL_DETECTED ) == TRUE ){
+			sxToStop = 0;
 		}
-	} 
 
+		/**
+		 * indica que o robô está travado 
+		 */
+		gpio_vWrite(LED, FALSE);
+
+		if( xTaskGetTickCountFromISR() > sxToStop ){
+			sxMa.fPwm = PWM_MAX;
+			sxMb.fPwm = PWM_MAX;	
+
+			motor_vToStop(sxMa.fPwm, &sxMa.xMotor);
+			motor_vToStop(sxMb.fPwm, &sxMb.xMotor);
+
+			return;
+		}
+
+	}
 
 	/**
 	 * Se todos os sensores estão ativos o robô está
@@ -278,55 +304,50 @@ void app_vProcess( void ){
 	 * por um tempo, e o robô deve continuar indo para
 	 * frente.
 	 */
-	if( ( uPosition >= LINE_FULL_DETECTED ) == TRUE ){
-		sxMa.fPwm = PWM_MAX;
-		sxMb.fPwm = PWM_MAX;	
+	if( LINE_FULL_DETECTED ){
+		sxIgnoreStop	= xTaskGetTickCountFromISR() + IGNORE_STOP;
+		sxToStop	= 0;
+		sxMa.fPwm 	= PWM_OFFSET;
+		sxMb.fPwm 	= PWM_OFFSET;	
 
 		motor_vToFront(sxMa.fPwm, &sxMa.xMotor);
 		motor_vToFront(sxMb.fPwm, &sxMb.xMotor);
 
-		sxIgnoreStop = xTaskGetTickCountFromISR() + 1000;
+		return;
 	}
 	
 	/**
 	 * Quando faixa de chagada for detectada o robô
-	 * iár travar os motores e "desabilitar" o PID
+	 * iár travar os motores e "desabilitar/ignorar" 
+	 * o controle pid PID, pro meio de um "ponto de
+	 * fuga" no inicio da função.
 	 */
 	if(sxIgnoreStop < xTaskGetTickCountFromISR()){
 		if(gpio_bRead(LINE_STOP) == FALSE){
-			sbStop = TRUE;
-
-			sxMa.fPwm = PWM_MIN;
-			sxMb.fPwm = PWM_MIN;	
-
-			motor_vToStop(1000, &sxMa.xMotor);
-			motor_vToStop(1000, &sxMb.xMotor);
-
+			sxToStop	= WAIT_TO_STOP + xTaskGetTickCountFromISR();
 			return;
 		}
 	}
 
+
 	sxPid.fInput = uPosition;
 	sxPid.fOutput =  pid_fRunFromISR(&sxPid);
 
-	/**
-	 * Saída do PID
-	 */
 	if(uPosition < PID_SETPOINT){
-		sxMa.fPwm = PWM_BASE + abs(sxPid.fOutput);
-		sxMb.fPwm = PWM_BASE - abs(sxPid.fOutput);
+		sxMa.fPwm = PWM_OFFSET + abs(sxPid.fOutput);
+		sxMb.fPwm = PWM_OFFSET - abs(sxPid.fOutput);
 	} else if(uPosition > PID_SETPOINT){
-		sxMa.fPwm = PWM_BASE - abs(sxPid.fOutput);
-		sxMb.fPwm = PWM_BASE + abs(sxPid.fOutput);
+		sxMa.fPwm = PWM_OFFSET - abs(sxPid.fOutput);
+		sxMb.fPwm = PWM_OFFSET + abs(sxPid.fOutput);
 	} else {
-		sxMa.fPwm = PWM_BASE;
-		sxMb.fPwm = PWM_BASE;
+		sxMa.fPwm = PWM_OFFSET;
+		sxMb.fPwm = PWM_OFFSET;
 	}
 
 
 	/**
-	 * Determinar valores minimos e maximos para garantir 
-	 * o funcionamento corredo robô.
+	 * Tratar valores do PWM para evitar que ultrapasse
+	 * o limite configurado no periferico
 	 */
 	if(sxMa.fPwm > PWM_MAX ){
 		sxMa.fPwm = PWM_MAX;	
@@ -343,6 +364,43 @@ void app_vProcess( void ){
 	if(sxMb.fPwm < PWM_MIN ){
 		sxMb.fPwm = PWM_MIN;	
 	}
+
+	/**
+	 * ! CONTROLE ON OFF
+	 * Os sensores mais extremos ( S0, S7 ) estão atrelados ao  controle
+	 * ON OFF isso foi utilizado para evitar que o robô perdesse a linha
+	 * em uma curva.
+	 * 
+	 * Os outros sendores  S1, S2, S3, S4, S5, S6 foram mantido no controle
+	 * PID, porem esse controle é ignorado quando o ON OFF está ativo
+	 */
+	if( (spuAverage[0] < scpuLineDetected[0]) ){
+		sxMa.fPwm = PWM_MAX;
+		sxMb.fPwm = PWM_MAX;
+		motor_vToFront(sxMa.fPwm, &sxMa.xMotor);
+		motor_vToStop(sxMb.fPwm, &sxMb.xMotor);
+		return;
+	}
+
+	if( (spuAverage[7] < scpuLineDetected[7]) ){
+		sxMa.fPwm = PWM_MAX;
+		sxMb.fPwm = PWM_MAX;
+		motor_vToStop(sxMa.fPwm, &sxMa.xMotor);
+		motor_vToFront(sxMb.fPwm, &sxMb.xMotor);
+		return;
+	}
+
+	/**
+	 * Isso é apenas um recurso para facilitar nos testes em uma pista.
+	 */
+	if (uPosition == 0){
+		if((spuAverage[0] < scpuLineDetected[0]) == FALSE){
+			motor_vTurnoff(&sxMa.xMotor);
+			motor_vTurnoff(&sxMb.xMotor);
+			return;
+		}
+	}
+
 
 	motor_vToFront(sxMa.fPwm, &sxMa.xMotor);
 	motor_vToFront(sxMb.fPwm, &sxMb.xMotor);

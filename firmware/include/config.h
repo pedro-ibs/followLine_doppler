@@ -63,7 +63,7 @@
 #define LINE_DETECTED_5			( 3500							)
 #define LINE_DETECTED_6			( 3500							)
 #define LINE_DETECTED_7			( 3500							)
-#define LINE_FULL_DETECTED		( LINE_VALUE_7 - ( LINE_VALUE_1 / CHANNELS )		)
+
 
 #define LINE_VALUE_0			( 1000 * 0						)
 #define LINE_VALUE_1			( 1000 * 1						)
@@ -81,14 +81,21 @@
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #define PWM_PRESCALER			( 72-1							)
 #define PWM_PERIOD			( 1000-1						)
-#define PWM_MAX				( 550							)
+#define PWM_MAX				( 1000							)
 #define PWM_MIN				( 0							)
-#define PWM_BASE			( PWM_MAX * 0.75					)
+#define PWM_OFFSET			( PWM_MAX * 0.75					)
 
 
 #define PID_KP				( 0.75							)
-#define PID_KI				( 0.3							)
+#define PID_KI				( 0.01							)
 #define PID_KD				( 0.075							)
 #define PID_SETPOINT			( LINE_VALUE_4 - ( LINE_VALUE_1 / 2 )			)
+
+
+/*--------------------------------------------------------------------------------------------------------------------------------------------------------*/
+/* Configuração ferais de tempo																  */
+/*--------------------------------------------------------------------------------------------------------------------------------------------------------*/
+#define IGNORE_STOP			( 1000 							)
+#define WAIT_TO_STOP			( 1000							)
 
 #endif /* config_H_ */
