@@ -29,11 +29,11 @@
  * Esse é um programa dedicado ao controle do robô seguidor de linha doppler
  * utilizado na competição "RMS CHALLENGE" 04/21-23 de 2022
  * 
- * A aplicação utilisa o FreeRTOS e driveres para ter acesso aos recursos
+ * A aplicação utiliza o FreeRTOS e drivers para ter acesso aos recursos
  * da CPU
  * 
- * Para a litura dos sensore é utilizado o DMA
- * Para a execução do controle PID e tuasão dos motores é utilizado a
+ * Para a litura dos sensores é utilizado o DMA
+ * Para a execução do controle PID e atuação dos motores é utilizado a
  * interrupção do DMA
  * 
  * Em config.h e hardware.h estão as definições de hardware e configurações
@@ -103,7 +103,7 @@ void app_vProcess( void );
 /*########################################################################################################################################################*/
 
 /**
- * Apos as configurações de hardware e valores de variaveis, Essa só irá  task existir
+ * Apos as configurações de hardware e valores de variáveis, Essa só irá  task existir
  * para realizar o "debug", caso APP_DEBUG não for definido ela será desativada (deletada).
  * 
  * veja em platformio.ini
@@ -120,8 +120,8 @@ void main_vApp(void * pvParameters){
 
 
 	/**
-	 * ignora o stop na patida por 10 segundos já na partida
-	 * isso evita que o robô pare logo no inicio
+	 * ignora o stop na partida por 10 segundos já na partida há um cursamento 
+	 * evitando que o robô pare logo no inicio
 	 */
 	sxIgnoreStop	= 10000;
 
@@ -155,10 +155,10 @@ void main_vApp(void * pvParameters){
 
 
 	/**
-	 * A frequência de aquisição é de 10khz, onde os
+	 * A frequência de aquisição é de 10kHz, onde os
 	 * canais são lidos 10 vezes antes de chamar a
 	 * interrupção do DAM dessa forma ela irá ocorrer
-	 * a cada 1ms.
+	 * a cada 1ms  (1kHz).
 	 */
 	adc1_vStartGetSampleMode( spuAdc1Buffer, BUFFER_SIZE, PRESCALER, PERIOD );
 
@@ -186,6 +186,9 @@ void main_vApp(void * pvParameters){
 			break;
 		#endif
 
+		/**
+		 * esse delay é necessário para evitar starvation
+		 */
 		vTaskDelay(_20MS);
 	}
 
@@ -208,7 +211,7 @@ void app_vCleanValues( void ){
  * 
  * 2 ) Termino do processo do calculo de media.
  * 
- * 3 ) Trazforma os valores lidos pelos sensores em posicionamento
+ * 3 ) Transforma os valores lidos pelos sensores em posicionamento
  * onde variam de 0 a 7000 e gradações como mostrado abaixo:
  * 
  * 
@@ -249,7 +252,7 @@ void app_vSignalTreatment( void ){
 			uContDetection++;
 
 			/**
-			 * Manter Valor maximo detectado
+			 * Manter Valor máximo detectado
 			 */
 			uPosition = ( scpuLineValue[uChannel]  );
 
@@ -267,14 +270,14 @@ void app_vSignalTreatment( void ){
 void app_vProcess( void ){
 
 	/**
-	 * após a detecção da linha de chegada o robô irá pararar 
-	 * apos um certo periodo de tempo, fazendo com que o mesmo
+	 * após a detecção da linha de chegada o robô irá parara 
+	 * apos um certo período de tempo, fazendo com que o mesmo
 	 * pere após a linha de chegada.  
 	 */
 	if(sxToStop > 0){
 		/**
 		 * O overchute do controle pode fazer com que o robô
-		 * trave em cima de um crusamento para evitar isso é 
+		 * trave em cima de um cruzamento para evitar isso é 
 		 * verificado se a fixa está embaixo do sensor 
 		 */
 		if( ( LINE_FULL_DETECTED ) == TRUE ){
@@ -285,6 +288,7 @@ void app_vProcess( void ){
 		 * indica que o robô está travado 
 		 */
 		gpio_vWrite(LED, FALSE);
+
 
 		if( xTaskGetTickCountFromISR() > sxToStop ){
 			sxMa.fPwm = PWM_MAX;
@@ -300,7 +304,7 @@ void app_vProcess( void ){
 
 	/**
 	 * Se todos os sensores estão ativos o robô está
-	 * em um cusamento portanto o stop deve ser ignorado
+	 * em um cruzamento portanto o stop deve ser ignorado
 	 * por um tempo, e o robô deve continuar indo para
 	 * frente.
 	 */
@@ -330,6 +334,9 @@ void app_vProcess( void ){
 	}
 
 
+	/**
+	 * Entrada do controle PID
+	 */
 	sxPid.fInput = uPosition;
 	sxPid.fOutput =  pid_fRunFromISR(&sxPid);
 
@@ -347,7 +354,7 @@ void app_vProcess( void ){
 
 	/**
 	 * Tratar valores do PWM para evitar que ultrapasse
-	 * o limite configurado no periferico
+	 * o limite configurado no periférico
 	 */
 	if(sxMa.fPwm > PWM_MAX ){
 		sxMa.fPwm = PWM_MAX;	
@@ -371,7 +378,7 @@ void app_vProcess( void ){
 	 * ON OFF isso foi utilizado para evitar que o robô perdesse a linha
 	 * em uma curva.
 	 * 
-	 * Os outros sendores  S1, S2, S3, S4, S5, S6 foram mantido no controle
+	 * Os outros senhores  S1, S2, S3, S4, S5, S6 foram mantido no controle
 	 * PID, porem esse controle é ignorado quando o ON OFF está ativo
 	 */
 	if( (spuAverage[0] < scpuLineDetected[0]) ){
@@ -392,6 +399,7 @@ void app_vProcess( void ){
 
 	/**
 	 * Isso é apenas um recurso para facilitar nos testes em uma pista.
+	 * ao perder a linha completamente o motores são desligados
 	 */
 	if (uPosition == 0){
 		if((spuAverage[0] < scpuLineDetected[0]) == FALSE){

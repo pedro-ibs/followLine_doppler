@@ -11,7 +11,7 @@
  * opensource.org/licenses/BSD-3-Clause
  * ########################################################
  *
- * inicialisadores básicos do framework stm32cubeMX
+ * inicializadores básicos do framework stm32cubeMX
  *
  */
 

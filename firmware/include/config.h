@@ -53,7 +53,7 @@
 #define FREQUENCY			( 1000							)
 #define PRESCALER			( 1							)
 #define PERIOD				( FREG_TO_COUNTER( FREQUENCY*SAMPLES, PRESCALER )	)
-#define ADC_SAMPLETIME			( ADC_SAMPLETIME_71CYCLES_5			)
+#define ADC_SAMPLETIME			( ADC_SAMPLETIME_71CYCLES_5				)
 
 #define LINE_DETECTED_0			( 3500							)
 #define LINE_DETECTED_1			( 3500							)
@@ -77,7 +77,7 @@
 
 
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------*/
-/* Configuração para controle de valocidade														  */
+/* Configuração para controle de valosidade														  */
 /*--------------------------------------------------------------------------------------------------------------------------------------------------------*/
 #define PWM_PRESCALER			( 72-1							)
 #define PWM_PERIOD			( 1000-1						)
