@@ -26,7 +26,7 @@ Ela é composta por alguns arquivos importante para a lógica de funcionamento d
 
 <br>
 
-[/motor.h](motor.h) e [/firmware/lib/motor/motor.c](/firmware/lib/motor/motor.c), biblioteca para controle dos motores para pontes H que operam de foram similar ou igual ao LM293D .
+[/motor.h](/firmware/lib/motor/motor.h) e [motor.c](/firmware/lib/motor/motor.c), biblioteca para controle dos motores para pontes H que operam de foram similar ou igual ao LM293D .
 
 
 <br>
